@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Delivery extends Model
 {
     protected $fillable = [
-        'truck_id', 'driver_id', 'destination',
+        'truck_id', 'driver_id', 'user_id', 'destination',
         'date_depart', 'date_arrivee', 'status', 'notes'
     ];
 
@@ -19,5 +19,10 @@ class Delivery extends Model
     public function driver()
     {
         return $this->belongsTo(Driver::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

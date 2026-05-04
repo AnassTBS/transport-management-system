@@ -26,15 +26,19 @@ class DeliveryController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        try {
+            $request->validate([
             'truck_id'    => 'required|exists:trucks,id',
             'driver_id'   => 'required|exists:drivers,id',
             'destination' => 'required|string',
             'date_depart' => 'required|date',
+            'date_arrivee'=> 'nullable|date|after_or_equal:date_depart',
             'status'      => 'required|in:en_cours,livree,annulee',
         ]);
 
-        Delivery::create($request->all());
+        $data = $request->all();
+        $data['user_id'] = auth()->id();
+        Delivery::create($data);
 
         // Mettre à jour le status du camion
         Truck::find($request->truck_id)
@@ -42,6 +46,10 @@ class DeliveryController extends Controller
 
         return redirect()->route('deliveries.index')
                          ->with('success', 'Livraison créée');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error($e->getMessage());
+            return redirect()->back()->with('error', 'Erreur lors de la création de la livraison: ' . $e->getMessage())->withInput();
+        }
     }
 
     public function edit(Delivery $delivery)
